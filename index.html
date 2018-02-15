@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>動画でパズル</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="stylesheet.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div id="overall">
+		<div id="urlInput">
+		<h1>
+			Movie Puzzle Challenge!
+		</h1>
+		<p>
+			動画でパズルが遊べます。
+			動画へのリンクを入力するか、ローカルファイルを選択してください。
+		</p>
+		<p> 
+			幅:<input id="width" type="text" value="4" size="5">
+			高さ:<input id="height" type="text" value="4" size="5">
+		</p>
+		<p>
+			URL:<input id="url" type="text" value="" size="60">
+			<input id="button" type="button" value="入力" onclick="onButtonClick();">
+		</p>
+		<p>
+			<input type="file" name="file" id="file">
+		</p>
+		</div>
+		<canvas id = "c"></canvas>
+		<video id = "v" loop>
+        	<source src=video.mp4>
+		</video>
+	</div>
+
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="helper.js"></script>
+</body>
+</html>
