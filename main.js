@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function(){
     canvas.addEventListener('click', onClick, false);
     document.getElementById('file').addEventListener('change', handleFileSelect, false);
 
+    //動画が始まったら、ゲームの描画を開始
     v.addEventListener('play', function(){
         pazzleGame.randomized();
         draw();
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 },false);
 
+//ローカルファイルを選んだ場合の動画再生開始
 function handleFileSelect(evt) {
     width = document.getElementById("width").value;
     height = document.getElementById("height").value;
@@ -31,6 +33,7 @@ function handleFileSelect(evt) {
     reader.readAsDataURL(file);
   }
 
+  //URLを入力した場合の動画再生開始
 function onButtonClick(){
     var video = document.getElementById('v');
     url = document.getElementById("url").value;
@@ -45,6 +48,7 @@ function onButtonClick(){
     video.play();
 }
 
+//クリック位置を取得して、ゲーム内容を更新
 function onClick(e) {
         var x = 0;
         var y = 0;
@@ -54,6 +58,7 @@ function onClick(e) {
         pazzleGame.update(x, y);
 }
 
+//画面の描画ループ
 function draw() {
     canvasReshape();
     if(v.paused){
@@ -64,6 +69,8 @@ function draw() {
     setTimeout(draw, 50);
 }
 
+//ウインドウサイズにあわせて、キャンバスのサイズを動的に変更する。
+//スマホでもプレイできるようにしたかったので作った。getStyleValueはサブピクセル単位でウインドウサイズを取得するために使用
 function canvasReshape() {
     var canvas = document.getElementById("c");
     var video = document.getElementById('v');
@@ -84,25 +91,34 @@ function canvasReshape() {
 }
 
 var Pazzle = function(width, height, gameMode){
+    //盤面の幅と高さ
     this.width = width;
     this.height = height;
+    //ゲームモード、使っていない。将来的に15パズル以外でも遊べるようにする予定だった。
     this.gameMode = gameMode;
+    //空きマスの位置
     this.space_x = width - 1;
     this.space_y = height - 1;
+    //クリア判定フラグ
     this.clearFlag = false;
+    //盤面の配列
     this.board = new Array(width * height);
+    //経過時間測定用
     this.time = new Date().getSeconds();
+    //クリア時間記録用
     this.clearTime = 0;
 
+    //盤面の初期化
     for(var i = 0; i < this.board.length; i++){
         this.board[i] = i;
     }
 
-
+    //x,yで指定したマスのパズル番号を返す
     this.getElement = function(x, y){
         return this.board[y * width + x];
     }
 
+    //クリアを判定
     this.checkClear = function(){
         for(var i = 0; i < this.board.length; i++){
             if(this.board[i] != i){
@@ -113,6 +129,8 @@ var Pazzle = function(width, height, gameMode){
         return true;
     }
 
+    //盤面をごちゃまぜにする
+    //飽きますをランダムにたくさん移動させることで達成する
     this.randomized = function(){
         var num_of_trials = this.width * this.height * 100;
         for(var i = 0; i < num_of_trials; i++){
@@ -137,6 +155,7 @@ var Pazzle = function(width, height, gameMode){
         }
     }
 
+    //dx,dyの方向に空きマスがあり移動できるかどうかを判定し、できるなら移動、できないなら何もしない。
     this.move = function(x, y, dx, dy){
         var nx = x + dx;
         var ny = y + dy;
@@ -154,6 +173,8 @@ var Pazzle = function(width, height, gameMode){
         return false;
     }
 
+    //クリックした座標を受け取って空きマスを移動
+    //f1~f4は結果を受け取っているが意味はないよう。おそらく消し忘れ
     this.update = function(mouse_x, mouse_y){
         if(this.clearFlag){
             this.replay();
@@ -169,12 +190,14 @@ var Pazzle = function(width, height, gameMode){
         f4 = this.move(x, y, -1, 0);
     }
 
+    //ゲームのリプレイ
     this.replay = function(){
         this.clearFlag = false;
         this.clearTime = 0;
         this.randomized();
     }
 
+    //canvas画面の描画
     this.draw = function(context){
         var canvas = document.getElementById("c");
     	var context = canvas.getContext('2d');
@@ -194,6 +217,7 @@ var Pazzle = function(width, height, gameMode){
                     continue;
                 }
     
+                //パズルの描画
                 var di = this.board[i];
                 var sw = Math.floor(videoWidth / this.width);
                 var sh = videoHeight / this.height;
@@ -205,11 +229,13 @@ var Pazzle = function(width, height, gameMode){
                 var dy = Math.floor(i / this.width) * dh;
                 context.drawImage(video, sx, sy, sw, sh, dx, dy, dw, dh);
 
+                //経過時間の表示
                 context.font = (canvasHeight / 20).toString() + "px serif";
                 context.textAlign = "right";
                 context.fillStyle = "red";
                 context.fillText(this.clearTime.toString() + "秒", canvasWidth * 59 / 60, canvasHeight * 2 / 32);
                 
+                //クリア画面の表示
                 if(this.clearFlag){
                     var size = Math.min((canvasHeight / 6), (canvasWidth / 8));
                     context.font = size.toString() + "px serif";
